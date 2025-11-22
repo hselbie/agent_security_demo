@@ -1,7 +1,7 @@
 import datetime
 import os
 import logging
-from typing import Tuple
+from typing import List, Tuple
 
 from a2a.types import (
     AgentCapabilities,
@@ -79,4 +79,5 @@ def create_calendar_agent(
             {OAUTH_SCHEME_NAME: CALENDAR_SCOPES_LIST} # Use dynamic scopes
         ],
     )
-    logger.info(f"Calendar AgentCard created with security schemes for {OAUTH_SCHEME_NAME}")    return agent, agent_card
+    logger.info(f"Calendar AgentCard created with security schemes for {OAUTH_SCHEME_NAME}")
+    return agent, agent_card

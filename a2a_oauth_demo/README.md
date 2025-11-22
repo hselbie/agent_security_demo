@@ -18,13 +18,7 @@ This example also demonstrates server-side authentication. If an incoming reques
 
 ## Running the example
 
-1. Create the .env file with your API Key and OAuth2.0 Client details
-
-   ```bash
-   echo "GOOGLE_API_KEY=your_api_key_here" > .env
-   echo "GOOGLE_CLIENT_ID=your_client_id_here" >> .env
-   echo "GOOGLE_CLIENT_SECRET=your_client_secret_here" >> .env
-   ```
+1. Ensure your `.env` file is configured at the **project root** (`../../.env`) with your Gemini API Key or Vertex AI configuration, and your Google OAuth Client details. Refer to the root `/.env_example` for the correct format.
 
 2. Run the example
 
@@ -34,22 +28,36 @@ This example also demonstrates server-side authentication. If an incoming reques
 
 ## Testing the agent
 
-Try running the CLI host at `samples/python/hosts/cli` to interact with the agent.
+Use the provided test client to interact with the A2A agent:
 
 ```bash
-uv run . --agent="http://localhost:10007"
+python3 test_client.py
 ```
+
+The test client demonstrates two scenarios:
 
 ### Test Case 1: Greeting (routed to Greeter Agent)
-When prompted, type `Hello`. The orchestrator should route this to the greeter agent, which will respond with a simple greeting.
+Sends "Hello" to the orchestrator, which should route this to the greeter agent for a simple greeting response.
 
-### Test Case 2: Calendar (routed to Calendar Agent)
-When prompted, type `Am I free from 10am to 11am tomorrow?`. The orchestrator will route this to the calendar agent, which will trigger the OAuth flow. Follow the authentication URL in your browser to grant access.
+### Test Case 2: Calendar Query (routed to Calendar Agent)
+Sends "Am I free from 10am to 11am tomorrow?" to the orchestrator, which routes it to the calendar agent. This will trigger the OAuth flow, providing an authorization URL in the response. Follow the authentication URL in your browser to grant calendar access.
 
 ### Test Case 3: Authenticated Calendar Request
-To test providing pre-authentication to the agent, you can use `gcloud` to provide an ID token.
+To test providing pre-authentication to the agent, you can send requests with a JWT token. Modify the test client to include an Authorization header:
 
-```bash
-uv run . --agent="http://localhost:10007" --header="Authorization=Bearer $(gcloud auth print-identity-token)"
+```python
+headers = {
+    "Content-Type": "application/json",
+    "Authorization": f"Bearer {your_id_token}"
+}
 ```
-Now, when you ask a calendar-related question, the agent will use the identity from the token to authorize with the Google Calendar API.
+
+Or use curl with gcloud:
+```bash
+curl -X POST http://localhost:10007/ \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $(gcloud auth print-identity-token)" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"message/send","params":{"message":{"kind":"message","messageId":"test-123","role":"user","parts":[{"kind":"text","text":"Am I free tomorrow at 10am?"}]}}}'
+```
+
+When you provide a valid ID token, the agent will associate the Calendar API authorization with the `sub` claim from the token and reuse it for future requests from the same user.

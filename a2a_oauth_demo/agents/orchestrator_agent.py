@@ -48,4 +48,5 @@ Examine the user's query and the descriptions of your sub-agents and route the r
             )
         ],
     )
-    logger.info(f"Orchestrator AgentCard created for URL: {agent_card.url}")    return agent, agent_card
+    logger.info(f"Orchestrator AgentCard created for URL: {agent_card.url}")
+    return agent, agent_card

@@ -363,12 +363,14 @@ def convert_genai_parts_to_a2a(parts: List[types.Part]) -> List[Part]:
 def convert_genai_part_to_a2a(part: types.Part) -> Part:
     """Convert a single Google Gen AI Part type into an A2A Part type."""
     if part.text:
-        return TextPart(text=part.text)
+        return Part(root=TextPart(text=part.text))
     if part.file_data:
-        return FilePart(
-            file=FileWithUri(
-                uri=part.file_data.file_uri,
-                mime_type=part.file_data.mime_type,
+        return Part(
+            root=FilePart(
+                file=FileWithUri(
+                    uri=part.file_data.file_uri,
+                    mime_type=part.file_data.mime_type,
+                )
             )
         )
     if part.inline_data:

@@ -3,7 +3,7 @@ import contextlib
 import json
 import logging
 import os
-from typing import List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Tuple, Any
 
 import click
 import uvicorn
@@ -41,7 +41,11 @@ from starlette.responses import PlainTextResponse
 from starlette.routing import Route
 
 
-load_dotenv()
+from pathlib import Path
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(dotenv_path=BASE_DIR / '.env')
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -66,7 +70,8 @@ class InsecureJWTAuthBackend(AuthenticationBackend):
                 jwt_claims += '=' * (4 - missing_padding)
             payload: str = base64.urlsafe_b64decode(jwt_claims).decode('utf-8')
             parsed_payload: Dict[str, Any] = json.loads(payload) # Explicit Dict
-            return AuthCredentials([]), SimpleUser(parsed_payload['sub'])        return None
+            return AuthCredentials([]), SimpleUser(parsed_payload['sub'])
+        return None
 
 
 @click.command()

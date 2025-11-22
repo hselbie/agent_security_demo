@@ -38,4 +38,5 @@ def create_greeter_agent(host: str, port: int) -> Tuple[LlmAgent, AgentCard]: # 
         capabilities=AgentCapabilities(streaming=True),
         skills=[skill],
     )
-    logger.info(f"Greeter AgentCard created for URL: {agent_card.url}")    return agent, agent_card
+    logger.info(f"Greeter AgentCard created for URL: {agent_card.url}")
+    return agent, agent_card
