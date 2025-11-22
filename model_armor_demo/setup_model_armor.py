@@ -1,14 +1,19 @@
 
 import os
+import logging
 from google.api_core import exceptions
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+logger = logging.getLogger(__name__)
+
 from google.cloud import modelarmor_v1
 
 # --- Configuration ---
 # These values are used to create the template.
-PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT_ID", "YOUR_PROJECT_ID")
-LOCATION = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
-TEMPLATE_ID = "ma-all-low" # The template ID your agent uses
-
+PROJECT_ID: str = os.getenv("GOOGLE_CLOUD_PROJECT_ID", "YOUR_PROJECT_ID")
+LOCATION: str = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
+TEMPLATE_ID: str = "ma-all-low" # The template ID your agent uses
 
 def create_model_armor_template():
     """
@@ -20,14 +25,19 @@ def create_model_armor_template():
 
     You only need to run this script once per project.
     """
-    print(f"Attempting to create template '{TEMPLATE_ID}' in project '{PROJECT_ID}'...")
+    if PROJECT_ID == "YOUR_PROJECT_ID" or not PROJECT_ID:
+        logger.error("PROJECT_ID is not set or is still the placeholder 'YOUR_PROJECT_ID'. "
+                     "Please set the GOOGLE_CLOUD_PROJECT_ID environment variable.")
+        return
+
+    logger.info(f"Attempting to create template '{TEMPLATE_ID}' in project '{PROJECT_ID}'...")
 
     try:
         # Instantiate the Model Armor client
         # Using a synchronous client here for a simple, one-off script.
         client = modelarmor_v1.ModelArmorClient(
             transport="rest",
-            client_options={"api_endpoint": "modelarmor.us-central1.rep.googleapis.com"}
+            client_options={"api_endpoint": f"modelarmor.{LOCATION}.rep.googleapis.com"}
         )
 
         # Define the full structure of the template
@@ -64,29 +74,26 @@ def create_model_armor_template():
         # Make the API call to create the template
         response = client.create_template(request=request)
 
-        print("---" * 10)
-        print(f"✅ Successfully created template '{TEMPLATE_ID}'.")
-        print("You can now run your agent.")
-        print("---" * 10)
-        print("Template details:")
-        print(response)
+        logger.info("-" * 40)
+        logger.info(f"✅ Successfully created template '{TEMPLATE_ID}'.")
+        logger.info("You can now run your agent.")
+        logger.info("-" * 40)
+        logger.info("Template details:")
+        logger.info(response)
 
     except exceptions.AlreadyExists:
-        print("---" * 10)
-        print(f"✅ Template '{TEMPLATE_ID}' already exists in project '{PROJECT_ID}'.")
-        print("No action needed. You can run your agent.")
-        print("---" * 10)
+        logger.info("-" * 40)
+        logger.info(f"✅ Template '{TEMPLATE_ID}' already exists in project '{PROJECT_ID}'.")
+        logger.info("No action needed. You can run your agent.")
+        logger.info("-" * 40)
     except exceptions.PermissionDenied as e:
-        print("---" * 10)
-        print("❌ ERROR: Permission Denied.")
-        print("Please ensure you have the 'Model Armor Admin' (roles/modelarmor.admin) role")
-        print(f"in the '{PROJECT_ID}' project and that the Model Armor API is enabled.")
-        print(f"Full error: {e}")
-        print("---" * 10)
+        logger.error("-" * 40)
+        logger.error("❌ ERROR: Permission Denied.")
+        logger.error("Please ensure you have the 'Model Armor Admin' (roles/modelarmor.admin) role")
+        logger.error(f"in the '{PROJECT_ID}' project and that the Model Armor API is enabled.")
+        logger.error(f"Full error: {e}")
+        logger.error("-" * 40)
     except Exception as e:
-        print("---" * 10)
-        print(f"❌ An unexpected error occurred: {e}")
-        print("---" * 10)
-
-if __name__ == "__main__":
-    create_model_armor_template()
+        logger.error("-" * 40)
+        logger.error(f"❌ An unexpected error occurred: {e}")
+        logger.error("-" * 40)

@@ -1,0 +1,23 @@
+steps:
+# --- Step 1: Build Docker Image ---
+- id: 'build-oauth-agent'
+  name: 'gcr.io/cloud-builders/docker'
+  waitFor: ["-"]
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      docker build \
+        -t "us-central1-docker.pkg.dev/$PROJECT_ID/a2a/oauth-a2a-agent:latest" \
+        -f Dockerfile \
+        .
+
+# --- Step 2: Push Docker Image ---
+- id: 'push-oauth-agent'
+  name: 'gcr.io/cloud-builders/docker'
+  waitFor: ['build-oauth-agent']
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      docker push "us-central1-docker.pkg.dev/$PROJECT_ID/a2a/oauth-a2a-agent:latest"

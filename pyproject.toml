@@ -5,6 +5,12 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "a2a>=0.44",
+    "a2a-sdk>=0.3.1",
+    "cloud-sql-python-connector>=1.18.4",
     "google-adk>=1.8.0",
     "google-cloud-modelarmor==0.2.6",
+    "litellm>=1.76.1",
+    "uvicorn",
+    "python-dotenv",
 ]
